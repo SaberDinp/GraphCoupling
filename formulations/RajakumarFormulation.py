@@ -2,6 +2,8 @@ import gurobipy as gp
 from gurobipy import GRB, quicksum
 import itertools
 
+from samples import graph_loader
+
 """
 Wrapper for Rajakumar et al's MIP formulation based on their description in appendix B of their paper 
 https://journals.aps.org/pra/abstract/10.1103/PhysRevA.106.022606
@@ -10,12 +12,14 @@ class RajakumarFormulation:
     def __init__(self, A):
         N = len(A[0])
         MAX_ROW = 2 ** (N - 1)
-        M = 100
+        M = sum(sum(A[i]) for i in range(N)) // 2
+
+        # generate all possible rows with -1 and +1 entries.
         p = self.generate_rows(N)
         # Create a new model
         model = gp.Model("RajakumarMIP")
         # Create variables
-        w = model.addVars(MAX_ROW, lb=-M, vtype=GRB.CONTINUOUS, name="w")
+        w = model.addVars(MAX_ROW, lb=-M, ub=M, vtype=GRB.CONTINUOUS, name="w")
         b = model.addVars(MAX_ROW, vtype=GRB.BINARY, name="b")
 
         model.update()
@@ -48,7 +52,8 @@ class RajakumarFormulation:
 
         return rows
 
-    def run(self, time_limit=600):
+    def run(self, time_limit=600, output_flag=1):
+        self.model.setParam('OutputFlag', output_flag)
         self.model.setParam('TimeLimit', time_limit)
         # Optimize model
         self.model.optimize()
@@ -57,41 +62,8 @@ class RajakumarFormulation:
 
 
 if __name__ == '__main__':
-    A = [
-        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-        [0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 1, 0, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
-        [0, 0, 0, 0, 0, 0, 1, 0, 1, 0],
-        [0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-    ]
+    A = graph_loader.get_path_graphs(15)
 
-    # A_20 = [
-    #     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-    # ]
     rajakumar = RajakumarFormulation(A)
     print(rajakumar.run())
 
