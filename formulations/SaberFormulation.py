@@ -208,7 +208,7 @@ class SaberFormulation:
         return self.model.ObjVal, self.model.getVars()
 
 if __name__ == '__main__':
-    # instance = graph_loader.load("samples/instances/7_2.txt")
+    # instance = graph_loader.load("samples/instances/7-2.txt")
     instance = graph_loader.get_path_graphs(10)
     print("max eigenvalue multiplicity", max_eigenvalue_multiplicity(instance))
     # instance = A
