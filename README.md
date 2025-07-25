@@ -55,11 +55,9 @@ If you use this codebase in your research, please consider citing our work (cita
 
 ## 🔧 Requirements
 
-- Python 3.8+
-- NumPy
-- pandas
-- Gurobi (with a valid license)
+All required Python packages, along with their specific versions, are listed in the `requirements.txt` file.
 
----
+> **Note**: Gurobi is a commercial solver and requires a valid license. Please refer to the [Gurobi website](https://www.gurobi.com/documentation/) for installation instructions and license setup.
+
 
 Feel free to open issues or contribute if you'd like to extend the project!
