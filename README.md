@@ -55,7 +55,7 @@ If you use this codebase in your research, please consider citing our work (cita
 
 ## 🔧 Requirements
 
-All required Python packages, along with their specific versions, are listed in the `requirements.txt` file.
+This project was developed and tested using **Python 3.9**. All required Python packages, along with their specific versions, are listed in the `requirements.txt` file.
 
 > **Note**: Gurobi is a commercial solver and requires a valid license. Please refer to the [Gurobi website](https://www.gurobi.com/documentation/) for installation instructions and license setup.
 
